@@ -13,7 +13,7 @@ public class Game2048 {
     public static final int[] dy = {1, 0, -1, 0};
     public static final String[] moves = {">", "v", "<", "^"};
 
-    private static int MAX_DEPTH = 2;
+    private static int MAX_DEPTH = 3;
     private static long IMAGE_SIMILARITY_THRESHOLD = 200000;
 
     static class MoveAndCost {
@@ -31,11 +31,60 @@ public class Game2048 {
     public static void main(String[] args) throws Throwable {
         initImages();
 
+        int[][] board = null;
+        int[][] oldBoard = null;
         while (true) {
-            int[][] board = readBoard();
+            int[][] newBoard = readBoard();
+            validate(board, oldBoard, newBoard);
+            board = newBoard;
+            oldBoard = copyBoard(board);
             String move = makeBestAction(board, 0).move; //it changes board
+            System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
+    }
+
+    private static int[][] copyBoard(int[][] board) {
+        int[][] r = new int[board.length][];
+        for (int i = 0; i < board.length; i++) {
+            r[i] = board[i].clone();
+        }
+        return r;
+    }
+
+    private static void validate(int[][] board, int[][] oldBoard, int[][] newBoard) {
+        if(!valid(board, oldBoard, newBoard)) {
+            System.out.println("Fayol");
+            System.out.println("Old:");
+            print(oldBoard);
+            System.out.println("Expected:");
+            print(board);
+            System.out.println("Actual:");
+            print(newBoard);
+            throw new RuntimeException();
+        }
+    }
+
+    private static boolean valid(int[][] board, int[][] oldBoard, int[][] newBoard) {
+        if(board == null || oldBoard == null) {
+            return true;
+        }
+        if(equals(oldBoard, newBoard)) {
+            return true;
+        }
+        int differentCnt = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if(board[i][j] != newBoard[i][j]) {
+                    if(board[i][j] == 0 && (newBoard[i][j] == 2 || newBoard[i][j] == 4)) {
+                        differentCnt++;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return differentCnt <= 1;
     }
 
     private static void pressKey(String move) throws Throwable {
