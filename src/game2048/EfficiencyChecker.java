@@ -1,7 +1,5 @@
 package game2048;
 
-import game2048.evaluators.TileCntPlusBlockedEvaluator;
-
 import java.util.Random;
 
 public class EfficiencyChecker {
@@ -15,7 +13,7 @@ public class EfficiencyChecker {
             sum += curValue;
             cnt++;
             double avgEfficiency = sum / cnt;
-            printCurStats(curValue, bestMoveFinder.getMaxDepth(), avgEfficiency);
+            printCurStats(curValue, bestMoveFinder, avgEfficiency);
         }
         double avgEfficiency = sum / cnt;
 
@@ -29,9 +27,9 @@ public class EfficiencyChecker {
         System.out.println();
     }
 
-    private void printCurStats(double curValue, int maxDepth, double avgEfficiency) {
+    private void printCurStats(double curValue, BestMoveFinder bestMoveFinder, double avgEfficiency) {
         System.out.println("cur efficiency = " + curValue);
-        System.out.println("average efficiency (with maxDepth " + maxDepth + ") = " + avgEfficiency);
+        System.out.println("average efficiency (with " + bestMoveFinder  + ") = " + avgEfficiency);
     }
 
     private double playGame(BestMoveFinder bestMoveFinder, int n, int m) {
@@ -39,10 +37,10 @@ public class EfficiencyChecker {
         addRandomTile(board);
         addRandomTile(board);
         do {
-            /*System.out.println("After spawn:");
+            System.out.println("After spawn:");
             Game2048.print(board);/**/
             Move move = bestMoveFinder.findBestMove(board);
-            /*System.out.println("After move: " + move);
+            System.out.println("After move: " + move);
             Game2048.print(board);/**/
         } while(addRandomTile(board));
         int sum = 0;

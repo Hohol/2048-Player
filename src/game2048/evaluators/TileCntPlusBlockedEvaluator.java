@@ -1,8 +1,5 @@
 package game2048.evaluators;
 
-import game2048.BestMoveFinder;
-import game2048.Move;
-
 //Avg efficiency = 973.5904
 public class TileCntPlusBlockedEvaluator extends AbstractEvaluator {
     @Override

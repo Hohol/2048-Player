@@ -19,15 +19,18 @@ public class Game2048 {
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[] args) throws Throwable {
-        play(new BestMoveFinder(new TileCntPlusBlockedEvaluator(),2));/**/
+        /*play(
+                new FixedStateCountBestMoveFinder(
+                        new TileCntPlusBlockedEvaluator(), 5000
+                )
+        );/**/
 
-        //checkEfficiency();
+        checkEfficiency();
     }
 
     private static void checkEfficiency() {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
-        //bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
-        //bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
+        //evaluators.add(new TileCntPlusBlockedEvaluator());
         evaluators.add(new TileCntPlusBlockedEvaluator());
 
         /*for(double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
@@ -42,9 +45,10 @@ public class Game2048 {
         }/**/
 
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
-        int maxDepth = 0;
+        int maxDepth = 2;
         for (Evaluator evaluator : evaluators) {
-            efficiencyChecker.checkEfficiency(new BestMoveFinder(evaluator, maxDepth), N, N);
+            //efficiencyChecker.checkEfficiency(new DefaultBestMoveFinder(evaluator, maxDepth), N, N);
+            efficiencyChecker.checkEfficiency(new FixedStateCountBestMoveFinder(evaluator, 5000), N, N);
         }
     }
 
