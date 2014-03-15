@@ -1,3 +1,5 @@
+package game2048;
+
 import java.awt.event.KeyEvent;
 
 public enum Move {

@@ -1,3 +1,5 @@
+package game2048;
+
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;

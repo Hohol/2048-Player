@@ -1,8 +1,7 @@
-import bsh.commands.dir;
+package game2048;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +17,14 @@ public class Game2048 {
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[] args) throws Throwable {
-        initImages();
+        //play();
 
+        EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
+        efficiencyChecker.checkEfficiency(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), 2), N, N);
+    }
+
+    private static void play() throws Throwable {
+        initImages();
         int[][] board = null;
         int[][] oldBoard = null;
         while (true) {

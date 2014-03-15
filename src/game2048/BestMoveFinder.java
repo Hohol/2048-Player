@@ -1,5 +1,12 @@
+package game2048;
+
 public class BestMoveFinder {
     private final Evaluator evaluator;
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
     private final int maxDepth;
 
     public BestMoveFinder(Evaluator evaluator, int maxDepth) {
