@@ -1,3 +1,5 @@
+import bsh.commands.dir;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -9,18 +11,15 @@ import java.util.*;
 public class Game2048 {
 
     public static final int N = 4;
-    public static final int[] dx = {0, 1, 0, -1};
-    public static final int[] dy = {1, 0, -1, 0};
-    public static final String[] moves = {">", "v", "<", "^"};
 
     private static int MAX_DEPTH = 0;
     private static long IMAGE_SIMILARITY_THRESHOLD = 200000;
 
     static class MoveAndCost {
-        String move;
+        Move move;
         double cost;
 
-        MoveAndCost(String move, double cost) {
+        MoveAndCost(Move move, double cost) {
             this.move = move;
             this.cost = cost;
         }
@@ -38,7 +37,7 @@ public class Game2048 {
             validate(board, oldBoard, newBoard);
             board = newBoard;
             oldBoard = copyBoard(board);
-            String move = makeBestAction(board, 0, MAX_DEPTH, new TileCntEvaluator()).move; //it changes board
+            Move move = makeBestAction(board, 0, MAX_DEPTH, new TileCntEvaluator()).move; //it changes board
             System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
@@ -87,17 +86,9 @@ public class Game2048 {
         return differentCnt <= 1;
     }
 
-    private static void pressKey(String move) throws Throwable {
+    private static void pressKey(Move move) throws Throwable {
         Robot robot = new Robot();
-        if (move.equals(">")) {
-            robot.keyPress(KeyEvent.VK_RIGHT);
-        } else if (move.equals("<")) {
-            robot.keyPress(KeyEvent.VK_LEFT);
-        } else if (move.equals("v")) {
-            robot.keyPress(KeyEvent.VK_DOWN);
-        } else {
-            robot.keyPress(KeyEvent.VK_UP);
-        }
+        robot.keyPress(move.keyCode);
         robot.delay(310);
     }
 
@@ -202,9 +193,9 @@ public class Game2048 {
         int m = board[0].length;
         double minCost = evaluator.failCost();
         int[][] bestBoard = null;
-        String bestMove = null;
-        for (int dir = 0; dir < 4; dir++) {
-            int[][] newBoard = makeMove(board, dx[dir], dy[dir]);
+        Move bestMove = null;
+        for (Move move : Move.ALL) {
+            int[][] newBoard = makeMove(board, move);
             if (equals(board, newBoard)) {
                 continue;
             }
@@ -229,12 +220,12 @@ public class Game2048 {
             }
             if (cost < minCost) {
                 minCost = cost;
-                bestMove = moves[dir];
+                bestMove = move;
                 bestBoard = newBoard;
             }
         }
         if (bestBoard == null) {
-            return new MoveAndCost(">", evaluator.failCost());
+            return new MoveAndCost(null, evaluator.failCost());
         }
         if (depth == 0) {
             for (int i = 0; i < board.length; i++) {
@@ -256,23 +247,23 @@ public class Game2048 {
         return equal;
     }
 
-    static int[][] makeMove(int[][] board, int dx, int dy) {
+    static int[][] makeMove(int[][] board, Move move) {
         int n = board.length;
         int m = board[0].length;
         int[][] r = new int[n][];
         for (int i = 0; i < n; i++) {
             r[i] = board[i].clone();
         }
-        if (dx == 1 || dy == 1) {
+        if (move.dx == 1 || move.dy == 1) {
             for (int i = n - 1; i >= 0; i--) {
                 for (int j = m - 1; j >= 0; j--) {
-                    move(r, i, j, dx, dy, n, m);
+                    move(r, i, j, move.dx, move.dy, n, m);
                 }
             }
         } else {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < m; j++) {
-                    move(r, i, j, dx, dy, n, m);
+                    move(r, i, j, move.dx, move.dy, n, m);
                 }
             }
         }
@@ -425,9 +416,9 @@ public class Game2048 {
     }
 
     private static boolean blocked(int x, int y, int[][] board) {
-        for (int dir = 0; dir < 4; dir++) {
-            int tox = x + dx[dir];
-            int toy = y + dy[dir];
+        for (Move move : Move.ALL) {
+            int tox = x + move.dx;
+            int toy = y + move.dy;
             if (!inside(tox, toy, board.length, board[0].length)) {
                 continue;
             }
