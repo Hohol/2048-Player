@@ -45,7 +45,11 @@ public class OrderFeeEvaluator extends AbstractEvaluator{
                     } else {
                         thisCellOrder += (m - j - 1);
                     }
-                    r += dist(i, j, x, y) * (maxOrder - order + 1);
+                    if(thisCellOrder >= order) {
+                        r += dist(i, j, x, y) * (maxOrder - order + 1);
+                    } else {
+                        r += 100;
+                    }
                 }
             }
         }
@@ -53,10 +57,5 @@ public class OrderFeeEvaluator extends AbstractEvaluator{
             used[i] = false;
         }
         return r;
-    }
-
-    @Override
-    public double getFailCost() {
-        return 1000;
     }
 }

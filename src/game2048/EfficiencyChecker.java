@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class EfficiencyChecker {
     private final Random rnd = new Random();
-    private final int MAX_STEP_CNT = 10;
+    private final int MAX_STEP_CNT = 10000;
     public double checkEfficiency(BestMoveFinder bestMoveFinder, int n, int m) {
         double sum = 0;
         int cnt = 0;
@@ -37,10 +37,10 @@ public class EfficiencyChecker {
         addRandomTile(board);
         addRandomTile(board);
         do {
-            System.out.println("After spawn:");
+            /*System.out.println("After spawn:");
             Game2048.print(board);/**/
             Move move = bestMoveFinder.findBestMove(board);
-            System.out.println("After move: " + move);
+            /*System.out.println("After move: " + move);
             Game2048.print(board);/**/
         } while(addRandomTile(board));
         int sum = 0;

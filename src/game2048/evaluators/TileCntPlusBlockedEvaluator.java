@@ -19,9 +19,4 @@ public class TileCntPlusBlockedEvaluator extends AbstractEvaluator {
 
         return tileCnt * 0.4 + blockedCnt * 0.6;
     }
-
-    @Override
-    public double getFailCost() {
-        return 1000;
-    }
 }

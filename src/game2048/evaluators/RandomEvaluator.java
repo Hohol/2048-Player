@@ -11,9 +11,4 @@ public class RandomEvaluator extends AbstractEvaluator {
     public double evaluate(int[][] board) {
         return rnd.nextDouble();
     }
-
-    @Override
-    public double getFailCost() {
-        return 1000;
-    }
 }

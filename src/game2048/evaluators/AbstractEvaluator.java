@@ -26,4 +26,9 @@ public abstract class AbstractEvaluator implements Evaluator {
         }
         return true;
     }
+
+    @Override
+    public double getFailCost() {
+        return 1000;
+    }
 }

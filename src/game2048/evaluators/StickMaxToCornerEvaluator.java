@@ -29,9 +29,4 @@ public class StickMaxToCornerEvaluator extends AbstractEvaluator {
     private int distToNearestCorner(int x, int y, int n, int m) {
         return Math.min(x, n - x - 1) + Math.min(y, m - y - 1);
     }
-
-    @Override
-    public double getFailCost() {
-        return 1000;
-    }
 }
