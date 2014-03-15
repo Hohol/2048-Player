@@ -1,6 +1,6 @@
 package game2048;
 
-public class BestMoveFinder {
+public class BestMoveFinder { //todo MinimaxBestMoveFinder
     private final Evaluator evaluator;
 
     public int getMaxDepth() {
@@ -21,7 +21,7 @@ public class BestMoveFinder {
     private MoveAndCost findBestMoveInternal(int[][] board, int depth) {
         int n = board.length;
         int m = board[0].length;
-        double minCost = evaluator.failCost();
+        double minCost = Double.POSITIVE_INFINITY;
         int[][] bestBoard = null;
         Move bestMove = null;
         for (Move move : Move.ALL) {
@@ -55,7 +55,7 @@ public class BestMoveFinder {
             }
         }
         if (bestBoard == null) {
-            return new MoveAndCost(null, evaluator.failCost());
+            return new MoveAndCost(null, evaluator.getFailCost());
         }
         if (depth == 0) {
             for (int i = 0; i < board.length; i++) {
@@ -126,7 +126,7 @@ public class BestMoveFinder {
 
     @Override
     public String toString() {
-        return "BestMoveFinder with " + evaluator.toString() + " and maxDepth = " + maxDepth;
+        return "BestMoveFinder with {" + evaluator.toString() + "} and maxDepth = " + maxDepth;
     }
 
     static class MoveAndCost {

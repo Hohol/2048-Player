@@ -12,27 +12,40 @@ public class Game2048 {
 
     public static final int N = 4;
 
-    private static int MAX_DEPTH = 0;
     private static long IMAGE_SIMILARITY_THRESHOLD = 300000;
 
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[] args) throws Throwable {
-        //play();
+        //play(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), 2));
 
-        int maxDepth = 0;
-        List<BestMoveFinder> bestMoveFinders = new ArrayList<BestMoveFinder>();
-        bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
-        bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
-        bestMoveFinders.add(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), maxDepth));
+        checkEfficiency();
+    }
+
+    private static void checkEfficiency() {
+        List<Evaluator> evaluators = new ArrayList<Evaluator>();
+        //bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
+        //bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
+        evaluators.add(new TileCntPlusBlockedEvaluator());
+
+        EvaluatorCombination combination = combinationOfTwo(
+                new TileCntEvaluator(), new FeeForBlockedEvaluator(), //must be same as TileCntPlusBlockedEvaluator
+                0.5, 0.5
+        );
+        evaluators.add(combination);
 
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
-        for (BestMoveFinder bestMoveFinder : bestMoveFinders) {
-            efficiencyChecker.checkEfficiency(bestMoveFinder, N, N);
+        int maxDepth = 0;
+        for (Evaluator evaluator : evaluators) {
+            efficiencyChecker.checkEfficiency(new BestMoveFinder(evaluator, maxDepth), N, N);
         }
     }
 
-    private static void play() throws Throwable {
+    private static EvaluatorCombination combinationOfTwo(TileCntEvaluator first, FeeForBlockedEvaluator second, double firstFactor, double secondFactor) {
+        return new EvaluatorCombination(Arrays.asList(new Evaluator[]{first, second}), Arrays.asList(firstFactor, secondFactor));
+    }
+
+    private static void play(BestMoveFinder bestMoveFinder) throws Throwable {
         initImages();
         int[][] board = null;
         int[][] oldBoard = null;
@@ -41,7 +54,7 @@ public class Game2048 {
             validate(board, oldBoard, newBoard);
             board = newBoard;
             oldBoard = copyBoard(board);
-            Move move = new BestMoveFinder(new TileCntPlusBlockedEvaluator(), MAX_DEPTH).findBestMove(board);
+            Move move = bestMoveFinder.findBestMove(board);
             System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
@@ -191,7 +204,6 @@ public class Game2048 {
         s.append("\n");
         return s.toString();
     }
-
 
 
     static boolean equals(int[][] actual, int[][] expected) {

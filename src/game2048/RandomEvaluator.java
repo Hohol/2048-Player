@@ -11,7 +11,7 @@ public class RandomEvaluator extends AbstractEvaluator {
     }
 
     @Override
-    public double failCost() {
+    public double getFailCost() {
         return 1000;
     }
 }

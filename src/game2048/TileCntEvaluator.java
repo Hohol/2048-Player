@@ -17,7 +17,7 @@ public class TileCntEvaluator extends AbstractEvaluator {
     }
 
     @Override
-    public double failCost() {
+    public double getFailCost() {
         return 1000;
     }
 }
