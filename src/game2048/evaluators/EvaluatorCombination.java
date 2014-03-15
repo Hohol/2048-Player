@@ -21,7 +21,8 @@ public class EvaluatorCombination implements Evaluator {
         failCost = failCostInternal();
     }
 
-    public static EvaluatorCombination combinationOfTwo(Evaluator first, Evaluator second, double firstFactor, double secondFactor) {
+    public static EvaluatorCombination combinationOfTwo(Evaluator first, Evaluator second, double firstFactor) {
+        double secondFactor = 1 - firstFactor;
         return new EvaluatorCombination(Arrays.asList(first, second), Arrays.asList(firstFactor, secondFactor));
     }
 

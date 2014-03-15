@@ -74,7 +74,7 @@ public class Game2048Test {
                 };
         Evaluator combination = EvaluatorCombination.combinationOfTwo(
                 new TileCntEvaluator(), new FeeForBlockedEvaluator(), //must be same as TileCntPlusBlockedEvaluator
-                0.4, 0.6
+                0.4
         );
         Evaluator simple = new TileCntPlusBlockedEvaluator();
         int[][] boardBuf = Game2048.copyBoard(board);

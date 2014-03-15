@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class EfficiencyChecker {
     private final Random rnd = new Random();
-    private final int MAX_STEP_CNT = 10000;
+    private final int MAX_STEP_CNT = 10;
     public double checkEfficiency(BestMoveFinder bestMoveFinder, int n, int m) {
         double sum = 0;
         int cnt = 0;
@@ -15,7 +15,7 @@ public class EfficiencyChecker {
             sum += curValue;
             cnt++;
             double avgEfficiency = sum / cnt;
-            //printCurStats(curValue, bestMoveFinder.getMaxDepth(), avgEfficiency);
+            printCurStats(curValue, bestMoveFinder.getMaxDepth(), avgEfficiency);
         }
         double avgEfficiency = sum / cnt;
 

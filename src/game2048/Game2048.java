@@ -19,29 +19,27 @@ public class Game2048 {
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[] args) throws Throwable {
-        //play(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), 2));
+        play(new BestMoveFinder(new TileCntPlusBlockedEvaluator(),2));/**/
 
-        checkEfficiency();
+        //checkEfficiency();
     }
 
     private static void checkEfficiency() {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
         //bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
         //bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
-
-        //evaluators.add(new TileCntPlusBlockedEvaluator());
+        evaluators.add(new TileCntPlusBlockedEvaluator());
 
         /*for(double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
+        //double firstFactor = 0.9999;{
+        //for(double firstFactor = 1e-10; firstFactor < 1; firstFactor *= 10) {
             EvaluatorCombination combination = EvaluatorCombination.combinationOfTwo(
-                    new TileCntPlusBlockedEvaluator(), new RandomEvaluator(),
-                    firstFactor, 1 - firstFactor
+                    new OrderFeeEvaluator(), new TileCntPlusBlockedEvaluator(),
+                    firstFactor
             );
+
             evaluators.add(combination);
         }/**/
-
-        for (int i = 0; i < 20; i++) {
-            evaluators.add(new OverrideFailCostEvaluator(new TileCntPlusBlockedEvaluator(), 1 << i));
-        }
 
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
         int maxDepth = 0;
@@ -315,69 +313,7 @@ public class Game2048 {
             used[i] = false;
         }
         return r;
-    }
-
-    private static int blockedFee(int[][] board) {
-        int r = 0;
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j] == 0) {
-                    continue;
-                }
-                if (blocked(i, j, board)) {
-                    r++;
-                }
-            }
-        }
-        return r * 3;
-    }
-
-    private static boolean blocked(int x, int y, int[][] board) {
-        for (Move move : Move.ALL) {
-            int tox = x + move.dx;
-            int toy = y + move.dy;
-            if (!inside(tox, toy, board.length, board[0].length)) {
-                continue;
-            }
-            if (board[x][y] >= board[tox][toy]) {
-                return false;
-            }
-        }
-        return true;
     }/**/
 
-    private static int maxPositionFee(int[][] board) {
-        int x = -1, y = -1;
-        int max = -1;
-        int n = board.length;
-        int m = board[0].length;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] > max) {
-                    max = board[i][j];
-                    x = i;
-                    y = j;
-                }
-            }
-        }
-        int sx = -1, sy = -1;
-        int smax = -1;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] != max && board[i][j] > smax) {
-                    smax = board[i][j];
-                    sx = i;
-                    sy = j;
-                }
-            }
-        }
-        return Math.min(
-                Math.min(dist(x, y, 0, 0), dist(x, y, n - 1, 0)),
-                Math.min(dist(x, y, 0, m - 1), dist(x, y, n - 1, m - 1))
-        ) * 2 + dist(x, y, sx, sy);
-    }
 
-    private static int dist(int x1, int y1, int x2, int y2) {
-        return Math.abs(x1 - x2) + Math.abs(y1 - y2);
-    }
 }
