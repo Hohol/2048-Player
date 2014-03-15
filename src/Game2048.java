@@ -38,7 +38,7 @@ public class Game2048 {
             validate(board, oldBoard, newBoard);
             board = newBoard;
             oldBoard = copyBoard(board);
-            String move = makeBestAction(board, 0).move; //it changes board
+            String move = makeBestAction(board, 0, MAX_DEPTH).move; //it changes board
             System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
@@ -53,7 +53,7 @@ public class Game2048 {
     }
 
     private static void validate(int[][] board, int[][] oldBoard, int[][] newBoard) {
-        if(!valid(board, oldBoard, newBoard)) {
+        if (!valid(board, oldBoard, newBoard)) {
             System.out.println("Fayol");
             System.out.println("Old:");
             print(oldBoard);
@@ -66,17 +66,17 @@ public class Game2048 {
     }
 
     private static boolean valid(int[][] board, int[][] oldBoard, int[][] newBoard) {
-        if(board == null || oldBoard == null) {
+        if (board == null || oldBoard == null) {
             return true;
         }
-        if(equals(oldBoard, newBoard)) {
+        if (equals(oldBoard, newBoard)) {
             return true;
         }
         int differentCnt = 0;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if(board[i][j] != newBoard[i][j]) {
-                    if(board[i][j] == 0 && (newBoard[i][j] == 2 || newBoard[i][j] == 4)) {
+                if (board[i][j] != newBoard[i][j]) {
+                    if (board[i][j] == 0 && (newBoard[i][j] == 2 || newBoard[i][j] == 4)) {
                         differentCnt++;
                     } else {
                         return false;
@@ -197,7 +197,7 @@ public class Game2048 {
         return s.toString();
     }
 
-    static MoveAndCost makeBestAction(int[][] board, int depth) {
+    static MoveAndCost makeBestAction(int[][] board, int depth, int maxDepth) {
         int n = board.length;
         int m = board[0].length;
         int minCost = Integer.MAX_VALUE;
@@ -209,7 +209,7 @@ public class Game2048 {
                 continue;
             }
             int cost = 0;
-            if (depth == MAX_DEPTH) {
+            if (depth == maxDepth) {
                 cost = evaluate(newBoard);
             } else {
                 int emptyCnt = 0;
@@ -218,9 +218,9 @@ public class Game2048 {
                         if (newBoard[i][j] == 0) {
                             emptyCnt++;
                             newBoard[i][j] = 2;
-                            cost += makeBestAction(newBoard, depth + 1).cost * 0.9;
+                            cost += makeBestAction(newBoard, depth + 1, maxDepth).cost * 0.9;
                             newBoard[i][j] = 4;
-                            cost += makeBestAction(newBoard, depth + 1).cost * 0.1;
+                            cost += makeBestAction(newBoard, depth + 1, maxDepth).cost * 0.1;
                             newBoard[i][j] = 0;
                         }
                     }
@@ -278,7 +278,7 @@ public class Game2048 {
         }
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if(r[i][j] < 0) {
+                if (r[i][j] < 0) {
                     r[i][j] *= -1;
                 }
             }
@@ -315,18 +315,97 @@ public class Game2048 {
         }
     }
 
-    private static int evaluate(int[][] board) {
+    public static int evaluate(int[][] board) {
         int r = 0;
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[0].length; j++) {
-                if (board[i][j] != 0) {
+        r += distToCornerFee(board);
+        //r += tilesCnt(board);
+        //r += maxPositionFee(board);
+        //r += blockedFee(board);
+        //r += orderFee(board);
+
+        return r;
+    }
+
+    private static int distToCornerFee(int[][] board) {
+        int r = 0;
+        int n = board.length;
+        int m = board[0].length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                r += Math.min(
+                        Math.min(dist(i, j, 0, 0), dist(i, j, n - 1, 0)),
+                        Math.min(dist(i, j, 0, m - 1), dist(i, j, n - 1, m - 1))
+                ) * board[i][j];
+            }
+        }
+        return r;
+    }
+
+    private static int tilesCnt(int[][] board) {
+        int r = 0;
+        for (int[] aBoard : board) {
+            for (int anABoard : aBoard) {
+                if (anABoard != 0) {
                     r++;
                 }
             }
         }
-        r += maxPositionFee(board);
-        r += blockedFee(board);
+        return r;
+    }
 
+    static int[] orderStat = new int[100000];
+    static boolean[] used = new boolean[100000];
+
+    private static int orderFee(int[][] board) {
+        int n = board.length;
+        int m = board[0].length;
+        int max = 0;
+        int r = 0;
+        for (int i = 0; i < board.length; i++) {
+
+            for (int j = 0; j < m; j++) {
+                if (board[i][j] != 0) {
+                    max = Math.max(max, board[i][j]);
+                    used[board[i][j]] = true;
+                }
+            }
+        }
+        int curOrder = 0;
+        for (int i = max; i >= 2; i >>= 1) {
+            if (used[i]) {
+                orderStat[i] = curOrder;
+                curOrder++;
+            }
+        }
+        int maxOrder = curOrder - 1;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < m; j++) {
+                if (board[i][j] != 0) {
+                    int order = orderStat[board[i][j]];
+                    int x = order / m;
+                    int y;
+                    if (x % 2 == 0) {
+                        y = order % m;
+                    } else {
+                        y = (m - order % m - 1);
+                    }
+                    int thisCellOrder = i * m;
+                    if (x % 2 == 0) {
+                        thisCellOrder += j;
+                    } else {
+                        thisCellOrder += (m - j - 1);
+                    }
+                    if (order <= thisCellOrder) {
+                        r += dist(i, j, x, y) * (maxOrder - order + 1);
+                    } else {
+                        r += (order - thisCellOrder) * 100;
+                    }
+                }
+            }
+        }
+        for (int i = max; i >= 2; i >>= 1) {
+            used[i] = false;
+        }
         return r;
     }
 
