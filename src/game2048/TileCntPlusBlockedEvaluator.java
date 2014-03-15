@@ -1,7 +1,7 @@
 package game2048;
 
 //average efficiency = 952.1654033567949
-public class TileCntPlusBlockedEvaluator implements Evaluator{
+public class TileCntPlusBlockedEvaluator extends AbstractEvaluator {
     @Override
     public double evaluate(int[][] board) {
         int r = 0;

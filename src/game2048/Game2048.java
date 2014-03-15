@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class Game2048 {
 
@@ -19,8 +20,16 @@ public class Game2048 {
     public static void main(String[] args) throws Throwable {
         //play();
 
+        int maxDepth = 0;
+        List<BestMoveFinder> bestMoveFinders = new ArrayList<BestMoveFinder>();
+        bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
+        bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
+        bestMoveFinders.add(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), maxDepth));
+
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
-        efficiencyChecker.checkEfficiency(new BestMoveFinder(new TileCntPlusBlockedEvaluator(), 2), N, N);
+        for (BestMoveFinder bestMoveFinder : bestMoveFinders) {
+            efficiencyChecker.checkEfficiency(bestMoveFinder, N, N);
+        }
     }
 
     private static void play() throws Throwable {

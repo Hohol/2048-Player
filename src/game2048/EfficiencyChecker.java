@@ -3,17 +3,33 @@ package game2048;
 import java.util.Random;
 
 public class EfficiencyChecker {
-    Random rnd = new Random();
+    private final Random rnd = new Random();
+    private final int MAX_STEP_CNT = 1000;
     public double checkEfficiency(BestMoveFinder bestMoveFinder, int n, int m) {
         double sum = 0;
         int cnt = 0;
-        while(true) {
+        for (int i = 0; i < MAX_STEP_CNT; i++) {
             double curValue = playGame(bestMoveFinder, n, m);
             sum += curValue;
             cnt++;
-            System.out.println("cur efficiency = " + curValue);
-            System.out.println("average efficiency (with maxDepth " + bestMoveFinder.getMaxDepth() + ") = " + sum / cnt);
+            double avgEfficiency = sum / cnt;
+            //printCurStats(curValue, bestMoveFinder.getMaxDepth(), avgEfficiency);
         }
+        double avgEfficiency = sum / cnt;
+
+        printResultReport(bestMoveFinder, avgEfficiency);
+        return avgEfficiency;
+    }
+
+    private void printResultReport(BestMoveFinder bestMoveFinder, double avgEfficiency) {
+        System.out.println(bestMoveFinder);
+        System.out.println("Avg efficiency = " + avgEfficiency);
+        System.out.println();
+    }
+
+    private void printCurStats(double curValue, int maxDepth, double avgEfficiency) {
+        System.out.println("cur efficiency = " + curValue);
+        System.out.println("average efficiency (with maxDepth " + maxDepth + ") = " + avgEfficiency);
     }
 
     private double playGame(BestMoveFinder bestMoveFinder, int n, int m) {

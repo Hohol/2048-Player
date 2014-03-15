@@ -124,6 +124,11 @@ public class BestMoveFinder {
         }
     }
 
+    @Override
+    public String toString() {
+        return "BestMoveFinder with " + evaluator.toString() + " and maxDepth = " + maxDepth;
+    }
+
     static class MoveAndCost {
         Move move;
         double cost;
