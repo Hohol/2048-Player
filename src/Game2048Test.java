@@ -8,7 +8,7 @@ public class Game2048Test {
     @Test
     void test() {
         int[][] board = {{1, 1}};
-        int[][] actual = Game2048.makeMove(board, Move.LEFT);
+        int[][] actual = BestMoveFinder.makeMove(board, Move.LEFT);
         int[][] expected = {{2, 0}};
         compare(actual, expected);
     }
@@ -16,7 +16,7 @@ public class Game2048Test {
     @Test
     void testZero() {
         int[][] board = {{0, 0}};
-        int[][] actual = Game2048.makeMove(board, Move.LEFT);
+        int[][] actual = BestMoveFinder.makeMove(board, Move.LEFT);
         int[][] expected = {{0, 0}};
         compare(actual, expected);
     }
@@ -24,7 +24,7 @@ public class Game2048Test {
     @Test
     void testMoveRight() {
         int[][] board = {{1, 2, 0, 0}};
-        int[][] actual = Game2048.makeMove(board, Move.RIGHT);
+        int[][] actual = BestMoveFinder.makeMove(board, Move.RIGHT);
         int[][] expected = {{0, 0, 1, 2}};
         compare(actual, expected);
     }
@@ -32,7 +32,7 @@ public class Game2048Test {
     @Test
     void test2() {
         int[][] board = {{2}, {0}, {1}, {1}};
-        int[][] actual = Game2048.makeMove(board, Move.UP);
+        int[][] actual = BestMoveFinder.makeMove(board, Move.UP);
         int[][] expected = {{2}, {2}, {0}, {0}};
         compare(actual, expected);
     }
@@ -41,16 +41,23 @@ public class Game2048Test {
     void testFourCanSpawn() {
         int[][] board = {{1, 1},
                 {64, 4}};
-        Game2048.MoveAndCost moveAndCost = Game2048.makeBestAction(board, 0, 1, new TileCntEvaluator());
-        assertEquals(moveAndCost.move, Move.LEFT);
+        Move move = new BestMoveFinder(new TileCntEvaluator(), 0).findBestMove(board);
+        assertEquals(move, Move.LEFT);
     }
 
     @Test
     void testBug() {
         int[][] board = {{4, 2, 2}};
-        int[][] actual = Game2048.makeMove(board, Move.RIGHT);
+        int[][] actual = BestMoveFinder.makeMove(board, Move.RIGHT);
         int[][] expected = {{0, 4, 4}};
         compare(actual, expected);
+    }
+
+    @Test
+    void testBestMoveFinder() {
+        int[][] board = {{8, 2},{2,0},{0,2}};
+        Move move = new BestMoveFinder(new TileCntEvaluator(), 0).findBestMove(board);
+        assertEquals(move, Move.UP);
     }
 
     /*@Test

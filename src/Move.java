@@ -2,8 +2,8 @@ import java.awt.event.KeyEvent;
 
 public enum Move {
     LEFT(0, -1, "<", KeyEvent.VK_LEFT),
-    RIGHT(0, 1, ">", KeyEvent.VK_RIGHT),
     UP(-1, 0, "^", KeyEvent.VK_UP),
+    RIGHT(0, 1, ">", KeyEvent.VK_RIGHT),
     DOWN(1, 0, "v", KeyEvent.VK_DOWN);
 
     final int dx, dy;

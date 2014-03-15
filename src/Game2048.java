@@ -13,17 +13,7 @@ public class Game2048 {
     public static final int N = 4;
 
     private static int MAX_DEPTH = 0;
-    private static long IMAGE_SIMILARITY_THRESHOLD = 200000;
-
-    static class MoveAndCost {
-        Move move;
-        double cost;
-
-        MoveAndCost(Move move, double cost) {
-            this.move = move;
-            this.cost = cost;
-        }
-    }
+    private static long IMAGE_SIMILARITY_THRESHOLD = 300000;
 
     static Scanner in = new Scanner(System.in);
 
@@ -37,7 +27,7 @@ public class Game2048 {
             validate(board, oldBoard, newBoard);
             board = newBoard;
             oldBoard = copyBoard(board);
-            Move move = makeBestAction(board, 0, MAX_DEPTH, new TileCntEvaluator()).move; //it changes board
+            Move move = new BestMoveFinder(new TileCntPlusBlockedEvaluator(), MAX_DEPTH).findBestMove(board);
             System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
@@ -188,52 +178,7 @@ public class Game2048 {
         return s.toString();
     }
 
-    static MoveAndCost makeBestAction(int[][] board, int depth, int maxDepth, Evaluator evaluator) {
-        int n = board.length;
-        int m = board[0].length;
-        double minCost = evaluator.failCost();
-        int[][] bestBoard = null;
-        Move bestMove = null;
-        for (Move move : Move.ALL) {
-            int[][] newBoard = makeMove(board, move);
-            if (equals(board, newBoard)) {
-                continue;
-            }
-            int cost = 0;
-            if (depth == maxDepth) {
-                cost = evaluate(newBoard);
-            } else {
-                int emptyCnt = 0;
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < m; j++) {
-                        if (newBoard[i][j] == 0) {
-                            emptyCnt++;
-                            newBoard[i][j] = 2;
-                            cost += makeBestAction(newBoard, depth + 1, maxDepth, evaluator).cost * 0.9;
-                            newBoard[i][j] = 4;
-                            cost += makeBestAction(newBoard, depth + 1, maxDepth, evaluator).cost * 0.1;
-                            newBoard[i][j] = 0;
-                        }
-                    }
-                }
-                cost /= emptyCnt;
-            }
-            if (cost < minCost) {
-                minCost = cost;
-                bestMove = move;
-                bestBoard = newBoard;
-            }
-        }
-        if (bestBoard == null) {
-            return new MoveAndCost(null, evaluator.failCost());
-        }
-        if (depth == 0) {
-            for (int i = 0; i < board.length; i++) {
-                System.arraycopy(bestBoard[i], 0, board[i], 0, board[i].length);
-            }
-        }
-        return new MoveAndCost(bestMove, minCost);
-    }
+
 
     static boolean equals(int[][] actual, int[][] expected) {
         boolean equal = true;
@@ -247,68 +192,9 @@ public class Game2048 {
         return equal;
     }
 
-    static int[][] makeMove(int[][] board, Move move) {
-        int n = board.length;
-        int m = board[0].length;
-        int[][] r = new int[n][];
-        for (int i = 0; i < n; i++) {
-            r[i] = board[i].clone();
-        }
-        if (move.dx == 1 || move.dy == 1) {
-            for (int i = n - 1; i >= 0; i--) {
-                for (int j = m - 1; j >= 0; j--) {
-                    move(r, i, j, move.dx, move.dy, n, m);
-                }
-            }
-        } else {
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    move(r, i, j, move.dx, move.dy, n, m);
-                }
-            }
-        }
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (r[i][j] < 0) {
-                    r[i][j] *= -1;
-                }
-            }
-        }
-        return r;
-    }
-
-    private static boolean inside(int x, int y, int n, int m) {
-        return x >= 0 && y >= 0 && x < n && y < m;
-    }
-
-    private static void move(int[][] board, int x, int y, int dx, int dy, int n, int m) {
-        while (true) {
-            if (board[x][y] == 0) {
-                break;
-            }
-            int tox = x + dx;
-            int toy = y + dy;
-            if (!inside(tox, toy, n, m)) {
-                break;
-            }
-            if (board[tox][toy] == 0) {
-                board[tox][toy] = board[x][y];
-                board[x][y] = 0;
-                x = tox;
-                y = toy;
-            } else if (board[tox][toy] == board[x][y]) {
-                board[tox][toy] = -board[x][y] * 2;
-                board[x][y] = 0;
-                break;
-            } else {
-                break;
-            }
-        }
-    }
-
     public static int evaluate(int[][] board) {
         int r = 0;
-        r += distToCornerFee(board);
+        //r += distToCornerFee(board);
         //r += tilesCnt(board);
         //r += maxPositionFee(board);
         //r += blockedFee(board);
@@ -317,7 +203,7 @@ public class Game2048 {
         return r;
     }
 
-    private static int distToCornerFee(int[][] board) {
+    /*private static int distToCornerFee(int[][] board) {
         int r = 0;
         int n = board.length;
         int m = board[0].length;
@@ -427,7 +313,7 @@ public class Game2048 {
             }
         }
         return true;
-    }
+    }/**/
 
     private static int maxPositionFee(int[][] board) {
         int x = -1, y = -1;
