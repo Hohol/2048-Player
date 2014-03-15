@@ -1,5 +1,7 @@
 package game2048;
 
+import game2048.evaluators.Evaluator;
+
 public class BestMoveFinder { //todo MinimaxBestMoveFinder
     private final Evaluator evaluator;
 
@@ -95,7 +97,7 @@ public class BestMoveFinder { //todo MinimaxBestMoveFinder
         return r;
     }
 
-    static boolean inside(int x, int y, int n, int m) {
+    public static boolean inside(int x, int y, int n, int m) {
         return x >= 0 && y >= 0 && x < n && y < m;
     }
 

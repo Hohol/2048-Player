@@ -1,5 +1,7 @@
 package game2048;
 
+import game2048.evaluators.*;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -26,23 +28,26 @@ public class Game2048 {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
         //bestMoveFinders.add(new BestMoveFinder(new RandomEvaluator(), maxDepth));
         //bestMoveFinders.add(new BestMoveFinder(new TileCntEvaluator(), maxDepth));
-        evaluators.add(new TileCntPlusBlockedEvaluator());
 
-        EvaluatorCombination combination = combinationOfTwo(
-                new TileCntEvaluator(), new FeeForBlockedEvaluator(), //must be same as TileCntPlusBlockedEvaluator
-                0.5, 0.5
-        );
-        evaluators.add(combination);
+        //evaluators.add(new TileCntPlusBlockedEvaluator());
+
+        /*for(double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
+            EvaluatorCombination combination = EvaluatorCombination.combinationOfTwo(
+                    new TileCntPlusBlockedEvaluator(), new RandomEvaluator(),
+                    firstFactor, 1 - firstFactor
+            );
+            evaluators.add(combination);
+        }/**/
+
+        for (int i = 0; i < 20; i++) {
+            evaluators.add(new OverrideFailCostEvaluator(new TileCntPlusBlockedEvaluator(), 1 << i));
+        }
 
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
         int maxDepth = 0;
         for (Evaluator evaluator : evaluators) {
             efficiencyChecker.checkEfficiency(new BestMoveFinder(evaluator, maxDepth), N, N);
         }
-    }
-
-    private static EvaluatorCombination combinationOfTwo(TileCntEvaluator first, FeeForBlockedEvaluator second, double firstFactor, double secondFactor) {
-        return new EvaluatorCombination(Arrays.asList(new Evaluator[]{first, second}), Arrays.asList(firstFactor, secondFactor));
     }
 
     private static void play(BestMoveFinder bestMoveFinder) throws Throwable {
@@ -60,7 +65,7 @@ public class Game2048 {
         }
     }
 
-    private static int[][] copyBoard(int[][] board) {
+    static int[][] copyBoard(int[][] board) {
         int[][] r = new int[board.length][];
         for (int i = 0; i < board.length; i++) {
             r[i] = board[i].clone();

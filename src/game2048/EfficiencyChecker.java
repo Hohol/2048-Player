@@ -1,10 +1,12 @@
 package game2048;
 
+import game2048.evaluators.TileCntPlusBlockedEvaluator;
+
 import java.util.Random;
 
 public class EfficiencyChecker {
     private final Random rnd = new Random();
-    private final int MAX_STEP_CNT = 1000;
+    private final int MAX_STEP_CNT = 10000;
     public double checkEfficiency(BestMoveFinder bestMoveFinder, int n, int m) {
         double sum = 0;
         int cnt = 0;

@@ -8,10 +8,10 @@ public enum Move {
     RIGHT(0, 1, ">", KeyEvent.VK_RIGHT),
     DOWN(1, 0, "v", KeyEvent.VK_DOWN);
 
-    final int dx, dy;
-    final String arrow;
-    final int keyCode;
-    final static Move[] ALL = Move.values();
+    public final int dx, dy;
+    public final String arrow;
+    public final int keyCode;
+    public static final Move[] ALL = Move.values();
 
     private Move(int dx, int dy, String arrow, int keyCode) {
         this.dx = dx;

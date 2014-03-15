@@ -1,5 +1,6 @@
 package game2048;
 
+import game2048.evaluators.*;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -57,9 +58,28 @@ public class Game2048Test {
 
     @Test
     void testBestMoveFinder() {
-        int[][] board = {{8, 2},{2,0},{0,2}};
+        int[][] board = {{8, 2}, {2, 0}, {0, 2}};
         Move move = new BestMoveFinder(new TileCntEvaluator(), 0).findBestMove(board);
         assertEquals(move, Move.UP);
+    }
+
+    @Test
+    void combinationTest() {
+        int[][] board =
+                {
+                        {64, 128, 32, 8},
+                        {32, 16, 8, 2},
+                        {16, 8, 0, 0},
+                        {4, 2, 0, 0}
+                };
+        Evaluator combination = EvaluatorCombination.combinationOfTwo(
+                new TileCntEvaluator(), new FeeForBlockedEvaluator(), //must be same as TileCntPlusBlockedEvaluator
+                0.4, 0.6
+        );
+        Evaluator simple = new TileCntPlusBlockedEvaluator();
+        int[][] boardBuf = Game2048.copyBoard(board);
+        assertEquals(new BestMoveFinder(combination, 0).findBestMove(board),
+                new BestMoveFinder(simple, 0).findBestMove(boardBuf));
     }
 
     /*@Test

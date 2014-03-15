@@ -1,4 +1,6 @@
-package game2048;
+package game2048.evaluators;
+
+import game2048.evaluators.AbstractEvaluator;
 
 import java.util.Random;
 

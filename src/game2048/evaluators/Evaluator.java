@@ -1,4 +1,4 @@
-package game2048;
+package game2048.evaluators;
 
 public interface Evaluator {
     double evaluate(int[][] board);

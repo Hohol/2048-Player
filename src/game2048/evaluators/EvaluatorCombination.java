@@ -1,5 +1,8 @@
-package game2048;
+package game2048.evaluators;
 
+import game2048.evaluators.Evaluator;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class EvaluatorCombination implements Evaluator {
@@ -16,6 +19,10 @@ public class EvaluatorCombination implements Evaluator {
         this.factors = factors;
         n = evaluators.size();
         failCost = failCostInternal();
+    }
+
+    public static EvaluatorCombination combinationOfTwo(Evaluator first, Evaluator second, double firstFactor, double secondFactor) {
+        return new EvaluatorCombination(Arrays.asList(first, second), Arrays.asList(firstFactor, secondFactor));
     }
 
     @Override
