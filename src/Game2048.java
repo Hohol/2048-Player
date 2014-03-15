@@ -13,14 +13,14 @@ public class Game2048 {
     public static final int[] dy = {1, 0, -1, 0};
     public static final String[] moves = {">", "v", "<", "^"};
 
-    private static int MAX_DEPTH = 3;
+    private static int MAX_DEPTH = 0;
     private static long IMAGE_SIMILARITY_THRESHOLD = 200000;
 
     static class MoveAndCost {
         String move;
-        int cost;
+        double cost;
 
-        MoveAndCost(String move, int cost) {
+        MoveAndCost(String move, double cost) {
             this.move = move;
             this.cost = cost;
         }
@@ -38,7 +38,7 @@ public class Game2048 {
             validate(board, oldBoard, newBoard);
             board = newBoard;
             oldBoard = copyBoard(board);
-            String move = makeBestAction(board, 0, MAX_DEPTH).move; //it changes board
+            String move = makeBestAction(board, 0, MAX_DEPTH, new TileCntEvaluator()).move; //it changes board
             System.out.println("\nMove = " + move + "\n");
             pressKey(move);
         }
@@ -197,10 +197,10 @@ public class Game2048 {
         return s.toString();
     }
 
-    static MoveAndCost makeBestAction(int[][] board, int depth, int maxDepth) {
+    static MoveAndCost makeBestAction(int[][] board, int depth, int maxDepth, Evaluator evaluator) {
         int n = board.length;
         int m = board[0].length;
-        int minCost = Integer.MAX_VALUE;
+        double minCost = evaluator.failCost();
         int[][] bestBoard = null;
         String bestMove = null;
         for (int dir = 0; dir < 4; dir++) {
@@ -218,9 +218,9 @@ public class Game2048 {
                         if (newBoard[i][j] == 0) {
                             emptyCnt++;
                             newBoard[i][j] = 2;
-                            cost += makeBestAction(newBoard, depth + 1, maxDepth).cost * 0.9;
+                            cost += makeBestAction(newBoard, depth + 1, maxDepth, evaluator).cost * 0.9;
                             newBoard[i][j] = 4;
-                            cost += makeBestAction(newBoard, depth + 1, maxDepth).cost * 0.1;
+                            cost += makeBestAction(newBoard, depth + 1, maxDepth, evaluator).cost * 0.1;
                             newBoard[i][j] = 0;
                         }
                     }
@@ -234,7 +234,7 @@ public class Game2048 {
             }
         }
         if (bestBoard == null) {
-            return new MoveAndCost(">", 1000);
+            return new MoveAndCost(">", evaluator.failCost());
         }
         if (depth == 0) {
             for (int i = 0; i < board.length; i++) {
