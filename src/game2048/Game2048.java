@@ -21,11 +21,9 @@ public class Game2048 {
     public static void main(String[] args) throws Throwable {
         play(new FixedStateCountBestMoveFinder(
                 new EvaluatorCombination(
-                        Arrays.asList(
-                                (Evaluator) new TileCntPlusBlockedEvaluator(), new StickMaxToCornerEvaluator(), new StickTwoBigEvaluator()
-                        ),
-                        Arrays.asList(0.4, 0.3, 0.3)
-                ), 10000)
+                        Arrays.asList((Evaluator)new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
+                        Arrays.asList(1.0, 1.0, 0.1)
+                ), 200000)
         );/**/
 
         checkEfficiency();
@@ -33,38 +31,24 @@ public class Game2048 {
 
     private static void checkEfficiency() {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
-        //evaluators.add(new TileCntPlusBlockedEvaluator());
-        //evaluators.add(EvaluatorCombination.combinationOfTwo(new TileCntPlusBlockedEvaluator(), new StickMaxToCornerEvaluator(), 0.7));
 
-        double firstFactor = 0.4;
-        double secondFactor = 0.3;
+        //evaluators.add(new MonotonicRowEvaluator());
+
+        //evaluators.add(bestEvaluator);
+        //for (double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
+        //double firstFactor = 0.5; {
         {
-            {
-                //for(double firstFactor = 1e-10; firstFactor < 1; firstFactor *= 10) {
-        /*for (double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
-            for (double secondFactor = 0; secondFactor < 1.01; secondFactor += 0.1) {/**/
-                double thirdFactor = 1 - firstFactor - secondFactor;
-                /*if(thirdFactor < -0.01) {
-                    continue;
-                }/**/
-                /*EvaluatorCombination combination = EvaluatorCombination.combinationOfTwo(
-                        new StickTwoBigEvaluator(), new TileCntPlusBlockedEvaluator(),
-                        firstFactor
-                );
+            /*EvaluatorCombination combination = EvaluatorCombination.combinationOfTwo(
+                    new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(),
+                    firstFactor
+            );/**/
 
-                combination = EvaluatorCombination.combinationOfTwo(
-                        combination, new StickMaxToCornerEvaluator(),
-                        0.8
-                );/**/
-                Evaluator combination = new EvaluatorCombination(
-                        Arrays.asList(
-                                (Evaluator) new TileCntPlusBlockedEvaluator(), new StickMaxToCornerEvaluator(), new StickTwoBigEvaluator()
-                        ),
-                        Arrays.asList(firstFactor, secondFactor, thirdFactor)
-                );
-                evaluators.add(combination);
-            }
+            EvaluatorCombination combination = new EvaluatorCombination(
+                    Arrays.asList((Evaluator)new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
+                    Arrays.asList(1.0, 1.0, 0.1)
+            );
 
+            evaluators.add(combination);
         }/**/
 
         EfficiencyChecker efficiencyChecker = new EfficiencyChecker();
@@ -73,6 +57,7 @@ public class Game2048 {
             //efficiencyChecker.checkEfficiency(new DefaultBestMoveFinder(evaluator, maxDepth), N, N);
             efficiencyChecker.checkEfficiency(new FixedStateCountBestMoveFinder(evaluator, 5000), N, N);
         }
+
     }
 
     private static void play(BestMoveFinder bestMoveFinder) throws Throwable {

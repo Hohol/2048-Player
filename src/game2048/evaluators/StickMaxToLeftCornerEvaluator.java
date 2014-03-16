@@ -1,12 +1,7 @@
 package game2048.evaluators;
 
-public class StickMaxToCornerEvaluator extends AbstractEvaluator {
+public class StickMaxToLeftCornerEvaluator extends AbstractEvaluator {
 
-    static int[] order = new int[1<<20]; {
-        for (int i = 0; i < 20; i++) {
-            order[1<<i] = i;
-        }
-    }
     @Override
     public double evaluate(int[][] board) {
         int x = -1, y = -1;
@@ -23,7 +18,7 @@ public class StickMaxToCornerEvaluator extends AbstractEvaluator {
             }
         }
 
-        return distToNearestCorner(x, y, n, m);/**/
+        return Math.min(x, n - 1 - x);
     }
 
     private int distToNearestCorner(int x, int y, int n, int m) {
