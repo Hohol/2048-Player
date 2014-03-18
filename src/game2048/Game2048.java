@@ -19,11 +19,10 @@ public class Game2048 {
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[] args) throws Throwable {
+
         play(new FixedStateCountBestMoveFinder(
-                new EvaluatorCombination(
-                        Arrays.asList((Evaluator)new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
-                        Arrays.asList(1.0, 1.0, 0.1)
-                ), 200000)
+                EvaluatorCombination.combinationOfTwo(
+                        new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), 0.5), 400000)
         );/**/
 
         checkEfficiency();
@@ -32,22 +31,17 @@ public class Game2048 {
     private static void checkEfficiency() {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
 
-        //evaluators.add(new MonotonicRowEvaluator());
+        evaluators.add(EvaluatorCombination.combinationOfTwo(
+                new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), 0.5)
+        );
 
-        //evaluators.add(bestEvaluator);
         //for (double firstFactor = 0; firstFactor < 1.01; firstFactor += 0.1) {
-        //double firstFactor = 0.5; {
-        {
+        //double firstFactor = 0.6; {
+        //{
             /*EvaluatorCombination combination = EvaluatorCombination.combinationOfTwo(
-                    new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(),
+                    new TileCntEvaluator(), new MonotonicRowEvaluator(),
                     firstFactor
-            );/**/
-
-            EvaluatorCombination combination = new EvaluatorCombination(
-                    Arrays.asList((Evaluator)new StickMaxToLeftCornerEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
-                    Arrays.asList(1.0, 1.0, 0.1)
             );
-
             evaluators.add(combination);
         }/**/
 
@@ -65,8 +59,13 @@ public class Game2048 {
         int[][] board = null;
         int[][] oldBoard = null;
         while (true) {
-            int[][] newBoard = readBoard();
-            validate(board, oldBoard, newBoard);
+            int[][] newBoard = null;
+            for (int i = 0; i < 5; i++) {
+                newBoard = readBoard();
+                if (validate(board, oldBoard, newBoard)) {
+                    break;
+                }
+            }
             board = newBoard;
             oldBoard = copyBoard(board);
             Move move = bestMoveFinder.findBestMove(board);
@@ -83,7 +82,7 @@ public class Game2048 {
         return r;
     }
 
-    private static void validate(int[][] board, int[][] oldBoard, int[][] newBoard) {
+    private static boolean validate(int[][] board, int[][] oldBoard, int[][] newBoard) {
         if (!valid(board, oldBoard, newBoard)) {
             System.out.println("Fayol");
             System.out.println("Old:");
@@ -92,8 +91,10 @@ public class Game2048 {
             print(board);
             System.out.println("Actual:");
             print(newBoard);
-            throw new RuntimeException();
+            return false;
+            //throw new RuntimeException();
         }
+        return true;
     }
 
     private static boolean valid(int[][] board, int[][] oldBoard, int[][] newBoard) {
@@ -137,15 +138,31 @@ public class Game2048 {
         int[][] board = new int[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                BufferedImage image = robot.createScreenCapture(new Rectangle(
-                        startX + a * j + indent * j, startY + a * i + indent * i,
-                        a, a
-                ));
-                board[i][j] = getNumber(image);
+                int number = getNumber(robot, startX, startY, a, indent, i, j);
+                board[i][j] = number;
             }
         }
         print(board);
         return board;
+    }
+
+    private static int getNumber(Robot robot, int startX, int startY, int a, int indent, int i, int j) throws IOException, InterruptedException {
+        for (int t = 0; t < 5; t++) {
+            BufferedImage image = getImage(robot, startX, startY, a, indent, i, j);
+            int r = getNumber(image, true);
+            if (r != -1) {
+                return r;
+            }
+        }
+        BufferedImage image = getImage(robot, startX, startY, a, indent, i, j);
+        return getNumber(image, false);
+    }
+
+    private static BufferedImage getImage(Robot robot, int startX, int startY, int a, int indent, int i, int j) {
+        return robot.createScreenCapture(new Rectangle(
+                startX + a * j + indent * j, startY + a * i + indent * i,
+                a, a
+        ));
     }
 
     private static void initImages() {
@@ -161,11 +178,14 @@ public class Game2048 {
         }
     }
 
-    private static int getNumber(BufferedImage image) throws IOException, InterruptedException {
+    private static int getNumber(BufferedImage image, boolean retryIfUnknown) throws IOException, InterruptedException {
         for (int i = 0; i < images.size(); i++) {
             if (similar(image, images.get(i))) {
                 return numbers.get(i);
             }
+        }
+        if (retryIfUnknown) {
+            return -1;
         }
         ImageIO.write(image, "png", new File("question.png"));
         System.out.println("What is this number?");

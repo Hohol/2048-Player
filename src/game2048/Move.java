@@ -3,6 +3,7 @@ package game2048;
 import java.awt.event.KeyEvent;
 
 public enum Move {
+
     LEFT(0, -1, "<", KeyEvent.VK_LEFT),
     UP(-1, 0, "^", KeyEvent.VK_UP),
     RIGHT(0, 1, ">", KeyEvent.VK_RIGHT),

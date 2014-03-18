@@ -113,4 +113,9 @@ public class FixedStateCountBestMoveFinder extends BestMoveFinder {
         }
         return r;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " with {" + evaluator.toString() + "} with maxCallCnt = " + maxCallCnt;
+    }
 }
