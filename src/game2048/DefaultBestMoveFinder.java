@@ -60,9 +60,7 @@ public class DefaultBestMoveFinder extends BestMoveFinder {
             return new MoveAndCost(null, evaluator.getFailCost());
         }
         if (depth == 0) {
-            for (int i = 0; i < board.length; i++) {
-                System.arraycopy(bestBoard[i], 0, board[i], 0, board[i].length);
-            }
+            copyBoard(board, bestBoard);
         }
         return new MoveAndCost(bestMove, minCost);
     }

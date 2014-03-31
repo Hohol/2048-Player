@@ -38,20 +38,7 @@ public class FixedStateCountBestMoveFinder extends BestMoveFinder {
             if (nextLevelCalls == 0) {
                 cost = evaluator.evaluate(newBoard);
             } else {
-                int emptyCnt = 0;
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < m; j++) {
-                        if (newBoard[i][j] == 0) {
-                            emptyCnt++;
-                            newBoard[i][j] = 2;
-                            cost += findBestMoveInternal(newBoard, nextLevelCalls).cost * 0.9;
-                            newBoard[i][j] = 4;
-                            cost += findBestMoveInternal(newBoard, nextLevelCalls).cost * 0.1;
-                            newBoard[i][j] = 0;
-                        }
-                    }
-                }
-                cost /= emptyCnt;
+                cost = getCost(n, m, nextLevelCalls, newBoard, cost);
             }
             if (cost < minCost) {
                 minCost = cost;
@@ -60,11 +47,27 @@ public class FixedStateCountBestMoveFinder extends BestMoveFinder {
             }
         }
         if (allowedCallCnt+1 == maxCallCnt) {
-            for (int i = 0; i < board.length; i++) {
-                System.arraycopy(bestBoard[i], 0, board[i], 0, board[i].length);
-            }
+            copyBoard(board, bestBoard);
         }
         return new MoveAndCost(bestMove, minCost);
+    }
+
+    private double getCost(int n, int m, int nextLevelCalls, int[][] newBoard, double cost) {
+        int emptyCnt = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (newBoard[i][j] == 0) {
+                    emptyCnt++;
+                    newBoard[i][j] = 2;
+                    cost += findBestMoveInternal(newBoard, nextLevelCalls).cost * 0.9;
+                    newBoard[i][j] = 4;
+                    cost += findBestMoveInternal(newBoard, nextLevelCalls).cost * 0.1;
+                    newBoard[i][j] = 0;
+                }
+            }
+        }
+        cost /= emptyCnt;
+        return cost;
     }
 
     private int getNeedCallsForNextDepth(int[][][] newBoards) {

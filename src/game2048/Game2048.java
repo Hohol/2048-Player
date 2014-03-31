@@ -17,16 +17,61 @@ public class Game2048 {
     private static long IMAGE_SIMILARITY_THRESHOLD = 300000;
 
     static Scanner in = new Scanner(System.in);
+    static EvaluatorCombination currentBestEvaluator = new EvaluatorCombination(
+            Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
+            Arrays.asList(1.0, 1.0, 0.1)
+    );
 
     public static void main(String[] args) throws Throwable {
 
-        play(new FixedStateCountBestMoveFinder(
-                EvaluatorCombination.combinationOfTwo(
-                        new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), 0.5), 400000)
+        /*play(new FixedStateCountBestMoveFinder(
+                currentBestEvaluator
+                , 400000)
         );/**/
 
-        checkEfficiency();
+        //checkEfficiency();
+
+        checkBadPosition();
     }
+
+    private static void checkBadPosition() {
+        int maxCallCnt = 400000;
+        //BestMoveFinder bestMoveFinder = new ConsoleBestMoveFinder(currentBestEvaluator);
+        EvaluatorCombination evaluator = new EvaluatorCombination(
+                Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator(), new TestEvaluator()),
+                Arrays.asList(1.0, 1.0, 0.1, 1.0)
+        );
+        /*System.out.println(evaluator.evaluate(stringToBoard(
+                " 4096     4     2     4 \n" +
+                " 2048     8     4     2 \n" +
+                " 1024    64     8     4 \n" +
+                "  128     0     4     0")));
+        System.out.println(evaluator.evaluate(stringToBoard(
+                " 4096     2     0     0 \n" +
+                " 2048     8     4     0 \n" +
+                " 1024     16     2     0\n" +
+                "  128    64     8 0")));
+        if(true) {
+            return;
+        }/**/
+        BestMoveFinder bestMoveFinder =
+                new FixedStateCountBestMoveFinder(
+                        evaluator
+                , maxCallCnt);/**/
+        int[][] board = {
+                { 4096 ,    0   ,  2  ,   0},
+                {2048   ,  4    , 4  ,   4},
+                {1024  ,   8 ,    8  ,   2},
+                {128  ,  64 ,    4  ,   4}
+        };
+        //323 - good test
+        //new AutoPlayer(323333).playFromGivenState(bestMoveFinder, board, true);
+        Random rnd = new Random();
+        int seed = rnd.nextInt();
+        System.out.println("Seed = " + seed);
+        new AutoPlayer(seed).playFromStart(bestMoveFinder, N, N, true);
+    }
+
 
     private static void checkEfficiency() {
         List<Evaluator> evaluators = new ArrayList<Evaluator>();
@@ -49,7 +94,7 @@ public class Game2048 {
         int maxDepth = 0;
         for (Evaluator evaluator : evaluators) {
             //efficiencyChecker.checkEfficiency(new DefaultBestMoveFinder(evaluator, maxDepth), N, N);
-            efficiencyChecker.checkEfficiency(new FixedStateCountBestMoveFinder(evaluator, 5000), N, N);
+            efficiencyChecker.checkEfficiency(new FixedStateCountBestMoveFinder(evaluator, 5000), N, N, false);
         }
 
     }
@@ -225,7 +270,13 @@ public class Game2048 {
     }
 
     static void print(int[][] board) {
-        System.out.println(boardToString(board));
+        for (int[] aBoard : board) {
+            for (int v : aBoard) {
+                System.out.printf("%5d ", v);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     static String boardToString(int[][] board) {
@@ -253,99 +304,14 @@ public class Game2048 {
         return equal;
     }
 
-    public static int evaluate(int[][] board) {
-        int r = 0;
-        //r += distToCornerFee(board);
-        //r += tilesCnt(board);
-        //r += maxPositionFee(board);
-        //r += blockedFee(board);
-        //r += orderFee(board);
-
-        return r;
-    }
-
-    /*private static int distToCornerFee(int[][] board) {
-        int r = 0;
-        int n = board.length;
-        int m = board[0].length;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                r += Math.min(
-                        Math.min(dist(i, j, 0, 0), dist(i, j, n - 1, 0)),
-                        Math.min(dist(i, j, 0, m - 1), dist(i, j, n - 1, m - 1))
-                ) * board[i][j];
+    static int[][] stringToBoard(String s) {
+        int[][] r = new int[N][N];
+        Scanner sin = new Scanner(s);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                r[i][j] = sin.nextInt();
             }
         }
         return r;
     }
-
-    private static int tilesCnt(int[][] board) {
-        int r = 0;
-        for (int[] aBoard : board) {
-            for (int anABoard : aBoard) {
-                if (anABoard != 0) {
-                    r++;
-                }
-            }
-        }
-        return r;
-    }
-
-    static int[] orderStat = new int[100000];
-    static boolean[] used = new boolean[100000];
-
-    private static int orderFee(int[][] board) {
-        int n = board.length;
-        int m = board[0].length;
-        int max = 0;
-        int r = 0;
-        for (int i = 0; i < board.length; i++) {
-
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] != 0) {
-                    max = Math.max(max, board[i][j]);
-                    used[board[i][j]] = true;
-                }
-            }
-        }
-        int curOrder = 0;
-        for (int i = max; i >= 2; i >>= 1) {
-            if (used[i]) {
-                orderStat[i] = curOrder;
-                curOrder++;
-            }
-        }
-        int maxOrder = curOrder - 1;
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] != 0) {
-                    int order = orderStat[board[i][j]];
-                    int x = order / m;
-                    int y;
-                    if (x % 2 == 0) {
-                        y = order % m;
-                    } else {
-                        y = (m - order % m - 1);
-                    }
-                    int thisCellOrder = i * m;
-                    if (x % 2 == 0) {
-                        thisCellOrder += j;
-                    } else {
-                        thisCellOrder += (m - j - 1);
-                    }
-                    if (order <= thisCellOrder) {
-                        r += dist(i, j, x, y) * (maxOrder - order + 1);
-                    } else {
-                        r += (order - thisCellOrder) * 100;
-                    }
-                }
-            }
-        }
-        for (int i = max; i >= 2; i >>= 1) {
-            used[i] = false;
-        }
-        return r;
-    }/**/
-
-
 }

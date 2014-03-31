@@ -70,6 +70,12 @@ public abstract class BestMoveFinder {
 
     abstract Move findBestMove(int[][] board);
 
+    protected void copyBoard(int[][] dest, int[][] src) {
+        for (int i = 0; i < dest.length; i++) {
+            System.arraycopy(src[i], 0, dest[i], 0, dest[i].length);
+        }
+    }
+
     static class MoveAndCost {
         Move move;
         double cost;

@@ -17,8 +17,6 @@ public class MinimaxBestMoveFinder extends BestMoveFinder {
 
     private MoveAndCost findBestMoveInternal(int[][] board, int allowedCallCnt) {
         allowedCallCnt--; //this call
-        int n = board.length;
-        int m = board[0].length;
         double minCost = Double.POSITIVE_INFINITY;
         int[][] bestBoard = null;
         Move bestMove = null;
@@ -34,22 +32,7 @@ public class MinimaxBestMoveFinder extends BestMoveFinder {
             if(newBoard == null) {
                 continue;
             }
-            double cost = 0;
-            if (nextLevelCalls == 0) {
-                cost = evaluator.evaluate(newBoard);
-            } else {
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < m; j++) {
-                        if (newBoard[i][j] == 0) {
-                            newBoard[i][j] = 2;
-                            cost = Math.max(cost, findBestMoveInternal(newBoard, nextLevelCalls).cost);
-                            newBoard[i][j] = 4;
-                            cost = Math.max(cost, findBestMoveInternal(newBoard, nextLevelCalls).cost);
-                            newBoard[i][j] = 0;
-                        }
-                    }
-                }
-            }
+            double cost = getCost(nextLevelCalls, newBoard);
             if (cost < minCost) {
                 minCost = cost;
                 bestMove = Move.ALL[dir];
@@ -57,11 +40,29 @@ public class MinimaxBestMoveFinder extends BestMoveFinder {
             }
         }
         if (allowedCallCnt+1 == maxCallCnt) {
-            for (int i = 0; i < board.length; i++) {
-                System.arraycopy(bestBoard[i], 0, board[i], 0, board[i].length);
-            }
+            copyBoard(board, bestBoard);
         }
         return new MoveAndCost(bestMove, minCost);
+    }
+
+    private double getCost(int nextLevelCalls, int[][] newBoard) {
+        double cost = Double.NEGATIVE_INFINITY;
+        if (nextLevelCalls == 0) {
+            cost = evaluator.evaluate(newBoard);
+        } else {
+            for (int i = 0; i < newBoard.length; i++) {
+                for (int j = 0; j < newBoard[i].length; j++) {
+                    if (newBoard[i][j] == 0) {
+                        newBoard[i][j] = 2;
+                        cost = Math.max(cost, findBestMoveInternal(newBoard, nextLevelCalls).cost);
+                        newBoard[i][j] = 4;
+                        cost = Math.max(cost, findBestMoveInternal(newBoard, nextLevelCalls).cost);
+                        newBoard[i][j] = 0;
+                    }
+                }
+            }
+        }
+        return cost;
     }
 
     private int getNeedCallsForNextDepth(int[][][] newBoards) {
@@ -88,24 +89,6 @@ public class MinimaxBestMoveFinder extends BestMoveFinder {
             int[][] newBoard = makeMove(board, move);
             if (!Game2048.equals(board, newBoard)) {
                 r[dir] = newBoard;
-            }
-        }
-        return r;
-    }
-
-    private int findNeededCallsForNextLevel(int[][] board) {
-        int r = 0;
-        for (Move move : Move.ALL) {
-            int[][] newBoard = makeMove(board, move);
-            if (Game2048.equals(board, newBoard)) {
-                continue;
-            }
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[i].length; j++) {
-                    if (newBoard[i][j] == 0) {
-                        r += 2;  // can put 2 or 4
-                    }
-                }
             }
         }
         return r;

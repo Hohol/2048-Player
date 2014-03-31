@@ -121,12 +121,6 @@ public class Game2048Test {
         compareBadAndGoodPositions(badPosition, goodPosition);
     }/**/
 
-    private void compareBadAndGoodPositions(int[][] badPosition, int[][] goodPosition) {
-        int badCost = Game2048.evaluate(badPosition);
-        int goodCost = Game2048.evaluate(goodPosition);
-        assertTrue("\nbadCost = " + badCost + "\ngoodCost = " + goodCost, badCost > goodCost);
-    }
-
     private void compare(int[][] actual, int[][] expected) {
         boolean equal = Game2048.equals(actual, expected);
         assertTrue("\n" + Game2048.boardToString(actual) + Game2048.boardToString(expected), equal);
