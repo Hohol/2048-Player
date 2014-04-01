@@ -1,6 +1,6 @@
 package game2048.evaluators;
 
-import game2048.DefaultBestMoveFinder;
+import game2048.bestmovefinders.DefaultBestMoveFinder;
 import game2048.Move;
 
 public abstract class AbstractEvaluator implements Evaluator {

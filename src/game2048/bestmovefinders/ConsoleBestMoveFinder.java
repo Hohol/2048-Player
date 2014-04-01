@@ -1,5 +1,6 @@
-package game2048;
+package game2048.bestmovefinders;
 
+import game2048.Move;
 import game2048.evaluators.Evaluator;
 
 import java.util.Scanner;
@@ -12,7 +13,7 @@ public class ConsoleBestMoveFinder extends BestMoveFinder {
     }
 
     @Override
-    Move findBestMove(int[][] board) {
+    public Move findBestMove(int[][] board) {
         while(true) {
             String s = in.next();
             for (Move move : Move.ALL) {

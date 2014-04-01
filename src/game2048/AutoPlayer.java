@@ -1,5 +1,7 @@
 package game2048;
 
+import game2048.bestmovefinders.BestMoveFinder;
+
 import java.util.Random;
 
 public class AutoPlayer {
@@ -25,12 +27,12 @@ public class AutoPlayer {
         do {
             if (shouldLog) {
                 System.out.println("After spawn:");
-                Game2048.print(board);
+                OriginalGamePlayer.print(board);
             }
             Move move = bestMoveFinder.findBestMove(board);
             if (shouldLog) {
                 System.out.println("After move: " + move);
-                Game2048.print(board);
+                OriginalGamePlayer.print(board);
             }
         } while (addRandomTile(board));
         int sum = 0;

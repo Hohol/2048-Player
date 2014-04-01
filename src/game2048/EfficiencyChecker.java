@@ -1,5 +1,7 @@
 package game2048;
 
+import game2048.bestmovefinders.BestMoveFinder;
+
 public class EfficiencyChecker {
     private final int MAX_STEP_CNT = 10000;
 
