@@ -9,9 +9,9 @@ import java.util.List;
 
 public class Main {
 
-    static EvaluatorCombination currentBestEvaluator = new EvaluatorCombination(
-            Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator()),
-            Arrays.asList(1.0, 1.0, 0.1)
+    static Evaluator currentBestEvaluator = new EvaluatorCombination(
+            Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator(), new MinimizeNonSnakePartEvaluator()),
+            Arrays.asList(1.0, 1.0, 0.1, 1.0)
     );
 
     public static void main(String[] args) throws Throwable {
@@ -23,45 +23,32 @@ public class Main {
 
         //checkEfficiency();
 
-        //autoplay();
+        autoplay();
     }
 
     private static void autoplay() {
         int maxCallCnt = 400000;
         //BestMoveFinder bestMoveFinder = new ConsoleBestMoveFinder(currentBestEvaluator);
-        EvaluatorCombination evaluator = new EvaluatorCombination(
-                Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator(), new TestEvaluator()),
+        Evaluator evaluator = new EvaluatorCombination(
+                Arrays.asList((Evaluator) new SnakeShapeEvaluator(), new MonotonicRowEvaluator(), new TileCntEvaluator(), new MinimizeNonSnakePartEvaluator()),
                 Arrays.asList(1.0, 1.0, 0.1, 1.0)
-        );
-        /*System.out.println(evaluator.evaluate(stringToBoard(
-                " 4096     4     2     4 \n" +
-                " 2048     8     4     2 \n" +
-                " 1024    64     8     4 \n" +
-                "  128     0     4     0")));
-        System.out.println(evaluator.evaluate(stringToBoard(
-                " 4096     2     0     0 \n" +
-                " 2048     8     4     0 \n" +
-                " 1024     16     2     0\n" +
-                "  128    64     8 0")));
-        if(true) {
-            return;
-        }/**/
+        );/**/
         BestMoveFinder bestMoveFinder =
                 new FixedStateCountBestMoveFinder(
                         evaluator
                 , maxCallCnt);/**/
-        int[][] board = {
-                { 4096 ,    0   ,  2  ,   0},
-                {2048   ,  4    , 4  ,   4},
-                {1024  ,   8 ,    8  ,   2},
-                {128  ,  64 ,    4  ,   4}
-        };
+        int[][] board = stringToBoard(
+                " 8192    64     4     0 \n" +
+                " 4096   128    64     2 \n" +
+                " 2048   256    16     2 \n" +
+                " 1024   512     4     8 "
+        );
         //323 - good test
-        //new AutoPlayer(323333).playFromGivenState(bestMoveFinder, board, true);
+        new AutoPlayer(323333).playFromGivenState(bestMoveFinder, board, true);
         Random rnd = new Random();
         int seed = rnd.nextInt();
         System.out.println("Seed = " + seed);
-        new AutoPlayer(seed).playFromStart(bestMoveFinder, OriginalGamePlayer.N, OriginalGamePlayer.N, true);
+        //new AutoPlayer(seed).playFromStart(bestMoveFinder, OriginalGamePlayer.N, OriginalGamePlayer.N, true);
     }
 
 

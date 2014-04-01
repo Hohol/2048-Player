@@ -1,6 +1,6 @@
 package game2048.evaluators;
 
-public class TestEvaluator extends AbstractEvaluator {
+public class MinimizeNonSnakePartEvaluator extends AbstractEvaluator {
     @Override
     public double evaluate(int[][] board) {
         int r = 0;
